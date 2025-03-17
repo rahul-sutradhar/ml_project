@@ -4,6 +4,7 @@ from PIL import Image, ImageDraw, ImageFont
 import imageio
 import requests
 from io import BytesIO
+import streamlit as st
 
 # Load the model
 json_file = open("Emotiondetector.json", "r")
@@ -34,27 +35,31 @@ stream_url = 'http://192.168.1.2:8080/video'
 
 labels = {0: 'angry', 1: 'disgust', 2: 'fear', 3: 'happy', 4: 'neutral', 5: 'sad', 6: 'surprise'}
 
-while True:
-    im = get_frame(stream_url)
-    gray = im.convert('L')
-    
-    # Detect faces (Replace this with actual face detection code)
-    # For example, using dlib: faces = face_detector(gray)
-    faces = []  # Placeholder for detected faces
+# Streamlit UI
+st.title("Real-Time Emotion Detection")
 
-    draw = ImageDraw.Draw(im)
-    try:
-        for (p, q, r, s) in faces:
-            image = gray.crop((p, q, p + r, q + s))
-            draw.rectangle([p, q, p + r, q + s], outline=(255, 0, 0), width=2)
-            image = image.resize((48, 48))
-            img = extract_features(image)
-            pred = model.predict(img)
-            prediction_label = labels[pred.argmax()]
+if st.button("Start Detection"):
+    while True:
+        im = get_frame(stream_url)
+        gray = im.convert('L')
 
-            # Draw text on the image
-            draw.text((p - 10, q - 10), prediction_label, fill=(0, 0, 255))
+        # Detect faces (Replace this with actual face detection code)
+        # For example, using dlib: faces = face_detector(gray)
+        faces = []  # Placeholder for detected faces
 
-        im.show()
-    except Exception as e:
-        print(f"An error occurred: {e}")
+        draw = ImageDraw.Draw(im)
+        try:
+            for (p, q, r, s) in faces:
+                image = gray.crop((p, q, p + r, q + s))
+                draw.rectangle([p, q, p + r, q + s], outline=(255, 0, 0), width=2)
+                image = image.resize((48, 48))
+                img = extract_features(image)
+                pred = model.predict(img)
+                prediction_label = labels[pred.argmax()]
+
+                # Draw text on the image
+                draw.text((p - 10, q - 10), prediction_label, fill=(0, 0, 255))
+
+            st.image(im, caption='Processed Image')
+        except Exception as e:
+            st.error(f"An error occurred: {e}")
