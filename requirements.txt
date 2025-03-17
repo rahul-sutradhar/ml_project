@@ -8,3 +8,4 @@ tqdm
 opencv-contrib-python
 scikit-learn
 matplotlib
+cv2
