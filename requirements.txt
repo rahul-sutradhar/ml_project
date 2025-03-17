@@ -8,4 +8,6 @@ tqdm
 opencv-contrib-python
 scikit-learn
 matplotlib
+cv2
+opencv-pytgon
 opencv-python-headless
