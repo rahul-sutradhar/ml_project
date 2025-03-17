@@ -10,3 +10,6 @@ scikit-learn
 matplotlib
 opencv-python-headless
 streamlit
+pillow
+imageio
+imageio-ffmpeg
