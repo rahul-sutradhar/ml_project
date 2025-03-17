@@ -12,4 +12,5 @@ opencv-python-headless
 streamlit
 pillow
 imageio
-imageio-ffmpeg
+requests
+io
