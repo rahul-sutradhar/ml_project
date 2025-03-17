@@ -13,4 +13,3 @@ streamlit
 pillow
 imageio
 requests
-io
