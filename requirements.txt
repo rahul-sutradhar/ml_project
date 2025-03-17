@@ -8,7 +8,5 @@ tqdm
 opencv-contrib-python
 scikit-learn
 matplotlib
-pillow
-imageio
-imageio-ffmpeg
+opencv-python-headless
 streamlit
