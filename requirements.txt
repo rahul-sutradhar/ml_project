@@ -8,4 +8,4 @@ tqdm
 opencv-contrib-python
 scikit-learn
 matplotlib
-opencv-python==4.8.1.78
+opencv-python-headless
