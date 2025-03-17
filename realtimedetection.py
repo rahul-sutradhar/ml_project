@@ -1,8 +1,8 @@
 import numpy as np
 from keras.models import model_from_json
 from PIL import Image, ImageDraw, ImageFont
-import numpy as np
-import io
+import imageio
+import imageio_ffmpeg as iio_ffmpeg
 
 # Load the model
 json_file = open("Emotiondetector.json", "r")
@@ -11,10 +11,10 @@ json_file.close()
 model = model_from_json(model_json)
 model.load_weights("emotiondetector.h5")
 
-# Load Haar Cascade using cv2
-import cv2
-haar_file = cv2.data.haarcascades + 'haarcascade_frontalface_default.xml'
-face_cascade = cv2.CascadeClassifier(haar_file)
+# Load Haar Cascade using an alternative method (e.g., pre-trained model)
+# We will assume the face detection model is loaded and ready to use
+# For example, using a pre-trained model from dlib or another library
+# face_detector = some_face_detection_model
 
 # Function to extract features
 def extract_features(image):
@@ -22,35 +22,32 @@ def extract_features(image):
     feature = feature.reshape(1,48,48,1)
     return feature / 255.0
 
-# Function to convert PIL image to OpenCV format
-def pil_to_cv2(image):
-    return cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
-
-# Function to convert OpenCV format to PIL image
-def cv2_to_pil(image):
-    return Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
-
 # Initialize webcam
-webcam = cv2.VideoCapture(0)
+webcam = imageio.get_reader('<video0>')
+
 labels = {0 : 'angry', 1 : 'disgust', 2 : 'fear', 3 : 'happy', 4 : 'neutral', 5 : 'sad', 6 : 'surprise'}
 
-while True:
-    i, im = webcam.read()
-    if not i:
-        break
-    gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
-    faces = face_cascade.detectMultiScale(im, 1.3, 5)
+for im in webcam:
+    # Convert image to grayscale
+    gray = Image.fromarray(im).convert('L')
+    
+    # Detect faces (Replace this with actual face detection code)
+    # For example, using dlib: faces = face_detector(gray)
+    faces = []  # Placeholder for detected faces
+
     try:
         for (p, q, r, s) in faces:
-            image = gray[q:q+s, p:p+r]
-            cv2.rectangle(im, (p, q), (p+r, q+s), (255, 0, 0), 2)
-            image = cv2.resize(image, (48, 48))
+            image = gray.crop((p, q, p+r, q+s))
+            draw = ImageDraw.Draw(im)
+            draw.rectangle([p, q, p+r, q+s], outline=(255, 0, 0), width=2)
+            image = image.resize((48, 48))
             img = extract_features(image)
             pred = model.predict(img)
             prediction_label = labels[pred.argmax()]
-            font = cv2.FONT_HERSHEY_COMPLEX_SMALL
-            cv2.putText(im, '%s' % (prediction_label), (p-10, q-10), font, 2, (0, 0, 255))
-        cv2.imshow("Output", im)
-        cv2.waitKey(27)
-    except cv2.error:
-        pass
+
+            # Draw text on the image
+            draw.text((p-10, q-10), prediction_label, fill=(0, 0, 255))
+
+        im.show()
+    except Exception as e:
+        print(f"An error occurred: {e}")
